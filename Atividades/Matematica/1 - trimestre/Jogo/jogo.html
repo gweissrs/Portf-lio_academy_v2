@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Jogo Quebrando a Banca — escape room matemático com probabilidade e combinatória. Guilherme Weiss." />
+  <meta name="theme-color" content="#05050a" />
+  <meta property="og:title" content="Jogo Quebrando a Banca · Guilherme Weiss" />
+  <meta property="og:description" content="Escape room em cassino: abra o cofre resolvendo desafios de probabilidade e combinatória." />
+  <title>Quebrando a Banca · Guilherme Weiss</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="jogo.css" />
+</head>
+<body>
+
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__ring"></div>
+    <div class="cursor__dot"></div>
+  </div>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- ══ NAVBAR ══ -->
+  <header class="navbar" id="navbar" role="banner">
+    <nav class="navbar__inner container" aria-label="Navegação da atividade">
+      <a href="../../../../index.html#mathematics" class="act-back" aria-label="Voltar ao portfólio">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Voltar ao portfólio
+      </a>
+      <a href="../../../../Inicio/index.html" class="navbar__logo" aria-label="Guilherme Weiss — início">
+        <span class="navbar__logo-mark" aria-hidden="true">GW</span>
+        <span class="navbar__logo-text">Guilherme Weiss</span>
+      </a>
+      <div class="act-breadcrumb" aria-label="Local atual">
+        <span class="act-breadcrumb__sep" aria-hidden="true">/</span>
+        <span class="act-breadcrumb__label">Matemática</span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ══ HERO ══ -->
+    <section class="act-hero" id="top" aria-labelledby="act-title">
+      <div class="act-hero__bg-grid"   aria-hidden="true"></div>
+      <div class="act-hero__bg-aurora" aria-hidden="true"></div>
+
+      <!-- partículas tipo fichas -->
+      <div class="act-hero__bg-charge" aria-hidden="true">
+        <div class="chip-particle" style="--d:3s;   --x:8%;  --y:25%"></div>
+        <div class="chip-particle" style="--d:4.5s; --x:80%; --y:18%"></div>
+        <div class="chip-particle" style="--d:2.8s; --x:52%; --y:72%"></div>
+        <div class="chip-particle" style="--d:5.2s; --x:22%; --y:60%"></div>
+        <div class="chip-particle" style="--d:3.7s; --x:68%; --y:45%"></div>
+        <div class="chip-particle" style="--d:4.1s; --x:38%; --y:12%"></div>
+        <div class="charge-particle" style="--d:1.4s; --x:90%; --y:70%"></div>
+        <div class="charge-particle" style="--d:2.0s; --x:15%; --y:80%"></div>
+      </div>
+
+      <!-- Cofre decorativo -->
+      <div class="vault-wrap" aria-hidden="true">
+        <svg class="vault-svg" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="40" width="220" height="220" rx="20"
+                fill="rgba(139,92,246,.06)" stroke="rgba(139,92,246,.35)" stroke-width="2"/>
+          <rect x="22" y="80"  width="14" height="30" rx="4"
+                fill="rgba(139,92,246,.2)" stroke="rgba(139,92,246,.3)" stroke-width="1.2"/>
+          <rect x="22" y="190" width="14" height="30" rx="4"
+                fill="rgba(139,92,246,.2)" stroke="rgba(139,92,246,.3)" stroke-width="1.2"/>
+          <g class="vault-dial">
+            <circle cx="150" cy="150" r="70"
+                    fill="rgba(139,92,246,.04)" stroke="rgba(139,92,246,.3)" stroke-width="1.5"/>
+            <circle cx="150" cy="150" r="55" fill="none" stroke="rgba(139,92,246,.15)" stroke-width="1"/>
+            <line x1="150" y1="82"  x2="150" y2="92"  stroke="rgba(139,92,246,.5)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="150" y1="208" x2="150" y2="218" stroke="rgba(139,92,246,.5)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="82"  y1="150" x2="92"  y2="150" stroke="rgba(139,92,246,.5)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="208" y1="150" x2="218" y2="150" stroke="rgba(139,92,246,.5)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="101" y1="101" x2="108" y2="108" stroke="rgba(139,92,246,.3)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="192" y1="192" x2="199" y2="199" stroke="rgba(139,92,246,.3)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="199" y1="101" x2="192" y2="108" stroke="rgba(139,92,246,.3)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="101" y1="192" x2="108" y2="199" stroke="rgba(139,92,246,.3)" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="150" y1="150" x2="150" y2="98" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"/>
+          </g>
+          <circle cx="150" cy="150" r="12"
+                  fill="rgba(139,92,246,.2)" stroke="rgba(139,92,246,.5)" stroke-width="1.5"/>
+          <circle cx="150" cy="150" r="5" fill="#a78bfa"/>
+          <rect x="240" y="130" width="28" height="40" rx="8"
+                fill="rgba(34,211,238,.08)" stroke="rgba(34,211,238,.3)" stroke-width="1.2"/>
+          <circle cx="254" cy="150" r="6"
+                  fill="rgba(34,211,238,.2)" stroke="rgba(34,211,238,.5)" stroke-width="1"/>
+          <text x="150" y="260" font-family="Sora,sans-serif" font-size="18" font-weight="800"
+                fill="rgba(139,92,246,.4)" text-anchor="middle" letter-spacing="8">? ? ?</text>
+        </svg>
+      </div>
+
+      <div class="container">
+        <div class="act-hero__inner">
+
+          <div class="act-hero__badge reveal">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Matemática · Escape Room Gamificado
+          </div>
+
+          <h1 class="act-hero__title reveal reveal--delay-1" id="act-title">
+            Quebrando
+            <span class="act-hero__title-accent">a Banca</span>
+          </h1>
+
+          <p class="act-hero__sub reveal reveal--delay-2">
+            Você está em um cassino. Um cofre com código secreto de 3 números aguarda.
+            Para abri-lo, resolva desafios de probabilidade e combinatória — e vença os outros grupos.
+          </p>
+
+          <div class="act-hero__meta reveal reveal--delay-3" role="list">
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Disciplina</span>
+              <span class="act-hero__meta-val">Matemática · Probabilidade</span>
+            </div>
+            <div class="act-hero__meta-divider" aria-hidden="true"></div>
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Formato</span>
+              <span class="act-hero__meta-val">Escape Room Digital</span>
+            </div>
+            <div class="act-hero__meta-divider" aria-hidden="true"></div>
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Ferramenta</span>
+              <span class="act-hero__meta-val">Genially · 2025</span>
+            </div>
+          </div>
+
+          <div class="act-hero__actions reveal reveal--delay-3">
+            <a href="https://view.genially.com/69d78772a66173e8e63f0fb2"
+               class="btn btn--primary js-magnetic"
+               target="_blank" rel="noopener noreferrer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              Jogar agora
+            </a>
+            <a href="#descricao" class="btn btn--ghost">
+              Ver detalhes
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="hero__scroll-cue" aria-hidden="true">
+        <div class="hero__scroll-track"><div class="hero__scroll-thumb"></div></div>
+      </div>
+    </section>
+
+    <!-- ══ BENTO: descrição + regras + desafios + equipe ══ -->
+    <section class="act-section" id="descricao" aria-labelledby="descricao-heading">
+      <div class="container">
+
+        <div class="act-section__header reveal">
+          <div class="section-label">Sobre a atividade</div>
+          <h2 class="section-heading" id="descricao-heading">O jogo</h2>
+          <p class="section-subheading">
+            Um escape room digital onde a matemática é a única chave para abrir o cofre
+            e quebrar a banca antes dos adversários.
+          </p>
+        </div>
+
+        <div class="act-bento" role="region" aria-label="Conteúdo principal da atividade">
+
+          <!-- ① Descrição + conceitos -->
+          <article class="act-card act-card--desc reveal" aria-labelledby="card-desc-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Missão</div>
+            <h3 class="act-card__title" id="card-desc-title">Abra o cofre com matemática</h3>
+            <div class="act-card__body">
+              <p>
+                O grupo criou um escape room digital no Genially inspirado no filme
+                <em>Quebrando a Banca</em>. O jogador assume o papel de um estrategista
+                dentro de um cassino: para descobrir o código secreto de 3 dígitos do cofre,
+                precisa resolver desafios progressivos de probabilidade e combinatória.
+              </p>
+              <p>
+                Cada acerto concede fichas e pistas que revelam parte do código.
+                Cada erro custa fichas do seu saldo. Vence quem decifrar o cofre primeiro —
+                unindo raciocínio matemático à pressão estratégica do jogo.
+              </p>
+            </div>
+            <div class="act-card__concepts" aria-label="Conceitos aplicados">
+              <span class="act-concept-pill">
+                <span class="act-concept-pill__dot" aria-hidden="true"></span>
+                Análise combinatória
+              </span>
+              <span class="act-concept-pill">
+                <span class="act-concept-pill__dot" aria-hidden="true"></span>
+                Teoria das probabilidades
+              </span>
+              <span class="act-concept-pill">
+                <span class="act-concept-pill__dot" aria-hidden="true"></span>
+                Princípio da contagem
+              </span>
+              <span class="act-concept-pill">
+                <span class="act-concept-pill__dot" aria-hidden="true"></span>
+                Arranjos simples
+              </span>
+            </div>
+          </article>
+
+
+
+          <!-- ③ Desafios matemáticos (largura total) -->
+          <article class="act-card act-card--method reveal reveal--delay-1"
+                   style="grid-column: 1 / -1;" aria-labelledby="card-challenges-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6"  y1="20" x2="6"  y2="14"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Desafios do Jogo</div>
+            <h3 class="act-card__title" id="card-challenges-title">Os 3 problemas matemáticos</h3>
+
+            <div class="act-questions" style="margin-top:1rem;">
+
+              <div class="act-question">
+                <div class="act-question__num">01</div>
+                <div>
+                  <p class="act-question__text">
+                    Calcule o total de arranjos possíveis considerando repetição de dígitos.
+                    Os dígitos 8 e 8 se repetem na sequência — o que afeta diretamente o cálculo.
+                  </p>
+                  <div class="act-question__answer">
+                    Resposta: <span>74.880</span> &mdash; 8 e 8 se repetem
+                  </div>
+                </div>
+                <div class="act-question__reward">
+                  <span class="chip chip--green">+3 fichas</span>
+                </div>
+              </div>
+
+              <div class="act-question">
+                <div class="act-question__num">02</div>
+                <div>
+                  <p class="act-question__text">
+                    Problema de expectativa probabilística: vale a pena apostar no longo prazo?
+                    A estratégia do cassino analisada matematicamente — a resposta é sim.
+                  </p>
+                  <div class="act-question__answer">
+                    Resposta: <span>Sim</span> &mdash; compensa no acumulado de jogadas
+                  </div>
+                </div>
+                <div class="act-question__reward">
+                  <span class="chip chip--green">+4 fichas</span>
+                  <span class="chip chip--teal">Pista: 2º número é par</span>
+                </div>
+              </div>
+
+              <div class="act-question">
+                <div class="act-question__num">03</div>
+                <div>
+                  <p class="act-question__text">
+                    Quantas senhas de 2 dígitos distintos podem ser formadas tendo 4 opções para
+                    o primeiro dígito e 3 para o segundo? Princípio fundamental da contagem: 4 × 3.
+                  </p>
+                  <div class="act-question__answer">
+                    Resposta: <span>12</span> &mdash; 4 × 3 = 12 possibilidades
+                  </div>
+                </div>
+                <div class="act-question__reward">
+                  <span class="chip chip--green">+3 fichas</span>
+                  <span class="chip chip--teal">Pista: 3º número &lt; 5</span>
+                </div>
+              </div>
+
+            </div>
+            </div>
+          </article>
+
+          <!-- ④ Equipe + link Genially -->
+          <article class="act-card act-card--phenomena reveal reveal--delay-2" aria-labelledby="card-team-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Equipe</div>
+            <h3 class="act-card__title" id="card-team-title">Feito em grupo</h3>
+
+            <div class="act-team" style="margin-top:.75rem; margin-bottom:1.5rem;">
+              <div class="act-team-member act-team-member--self">
+                <div class="act-team-member__avatar">GW</div>
+                Guilherme Weiss
+              </div>
+              <div class="act-team-member">
+                <div class="act-team-member__avatar">CR</div>
+                Cleyton Rodrigues
+              </div>
+              <div class="act-team-member">
+                <div class="act-team-member__avatar">VM</div>
+                Victor Morsoleto
+              </div>
+              <div class="act-team-member">
+                <div class="act-team-member__avatar">DG</div>
+                Diogo
+              </div>
+            </div>
+
+            <p class="act-card__overline2">Acesse o jogo</p>
+            <a href="https://view.genially.com/69d78772a66173e8e63f0fb2"
+               class="act-genially-cta"
+               target="_blank" rel="noopener noreferrer">
+              <div class="act-genially-cta__icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </div>
+              <div>
+                <div class="act-genially-cta__label">Genially · Escape Room</div>
+                <div class="act-genially-cta__name">Quebrando a Banca</div>
+              </div>
+              <div class="act-genially-cta__arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </div>
+            </a>
+          </article>
+
+        </div><!-- /act-bento -->
+      </div>
+    </section>
+
+    <!-- ══ HABILIDADES ══ -->
+    <section class="act-section act-section--alt" id="habilidades" aria-labelledby="hab-heading">
+      <div class="container">
+        <div class="act-section__header reveal">
+          <div class="section-label">Desenvolvimento</div>
+          <h2 class="section-heading" id="hab-heading">Habilidades desenvolvidas</h2>
+          <p class="section-subheading">
+            Competências matemáticas e estratégicas exercitadas ao longo do projeto.
+          </p>
+        </div>
+
+        <div class="act-tags-wrap reveal reveal--delay-1" aria-label="Habilidades em formato de tags">
+          <span class="tag">Probabilidade aplicada</span>
+          <span class="tag">Análise combinatória</span>
+          <span class="tag">Princípio da contagem</span>
+          <span class="tag">Arranjos simples</span>
+          <span class="tag">Pensamento estratégico</span>
+          <span class="tag">Design de jogos</span>
+          <span class="tag">Tomada de decisão</span>
+          <span class="tag">Trabalho em equipe</span>
+          <span class="tag">Criatividade</span>
+          <span class="tag">Resolução de problemas</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ COMPETÊNCIAS BNCC ══ -->
+    <section class="act-section" id="competencias" aria-labelledby="comp-heading">
+      <div class="container">
+        <div class="act-section__header reveal">
+          <div class="section-label">BNCC / Currículo</div>
+          <h2 class="section-heading" id="comp-heading">Competências e Habilidades</h2>
+          <p class="section-subheading">
+            Referências curriculares articuladas por esta atividade prática.
+          </p>
+        </div>
+
+        <div class="act-competencias">
+
+          <div class="act-comp-card reveal" aria-labelledby="comp-c5-title">
+            <div class="act-comp-card__header">
+              <div class="act-comp-card__badge">C5</div>
+              <h3 class="act-comp-card__title" id="comp-c5-title">
+                Pensamento Probabilístico
+              </h3>
+            </div>
+            <p class="act-comp-card__desc">
+              Aplicação do pensamento probabilístico em situações reais, reconhecendo
+              a incerteza como elemento central à tomada de decisão estratégica dentro do jogo.
+            </p>
+          </div>
+
+          <div class="act-hab-grid">
+
+            <article class="act-hab-card reveal reveal--delay-1" aria-labelledby="hab-h30">
+              <div class="act-hab-card__code" aria-label="Habilidade H30">H30</div>
+              <h4 class="act-hab-card__title" id="hab-h30">Raciocínio Combinatório</h4>
+              <p class="act-hab-card__desc">
+                Uso de raciocínio combinatório para análise de possibilidades — aplicado
+                diretamente nos 3 desafios matemáticos do escape room.
+              </p>
+              <ul class="act-hab-card__list" aria-label="Conceitos abordados">
+                <li>Princípio fundamental da contagem</li>
+                <li>Arranjos com repetição (74.880)</li>
+                <li>4 × 3 = 12 possibilidades</li>
+                <li>Análise de casos distintos</li>
+              </ul>
+            </article>
+
+            <article class="act-hab-card act-hab-card--featured reveal reveal--delay-2" aria-labelledby="hab-h31">
+              <div class="act-hab-card__code act-hab-card__code--featured" aria-label="Habilidade H31">H31</div>
+              <h4 class="act-hab-card__title" id="hab-h31">Eventos Aleatórios</h4>
+              <p class="act-hab-card__desc">
+                Compreensão de eventos aleatórios e previsão de resultados: o sistema de apostas
+                e pistas do jogo simula análise probabilística de longo prazo, integrando teoria
+                e prática de forma imersiva através da dinâmica do cassino.
+              </p>
+              <div class="act-hab-card__highlight" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+                Habilidade-síntese da atividade
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CTA FINAL ══ -->
+    <section class="act-cta-section" id="jogar" aria-labelledby="cta-heading">
+      <div class="act-cta-section__glow" aria-hidden="true"></div>
+      <div class="container">
+        <div class="act-cta reveal">
+          <div class="act-cta__icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div class="act-cta__content">
+            <h2 class="act-cta__title" id="cta-heading">Pronto para quebrar a banca?</h2>
+            <p class="act-cta__desc">
+              Acesse o escape room no Genially, resolva os 3 desafios matemáticos,
+              colete fichas e pistas — e descubra o código do cofre antes dos outros grupos.
+            </p>
+          </div>
+          <a href="https://view.genially.com/69d78772a66173e8e63f0fb2"
+             class="btn btn--primary btn--lg js-magnetic"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Abrir o escape room no Genially (nova aba)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Jogar agora
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navegação entre atividades -->
+    <section class="act-nav-between" aria-label="Navegar entre atividades">
+      <div class="container">
+        <div class="act-nav-between__inner">
+          <a href="../../../../index.html#mathematics" class="act-nav-between__home reveal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Voltar ao portfólio
+          </a>
+          <span class="act-nav-between__label reveal reveal--delay-1">Matemática · 1º Trimestre</span>
+          <a href="#top" class="act-nav-between__top reveal reveal--delay-2">
+            Topo da página
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__gradient" aria-hidden="true"></div>
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="navbar__logo-mark" aria-hidden="true">GW</span>
+          <p class="footer__tagline">Tecnologia com propósito.</p>
+        </div>
+        <nav class="footer__nav" aria-label="Links do rodapé">
+          <a href="../../../../Inicio/inicio.html#hero" class="footer__link">Início</a>
+          <a href="../../../../Inicio/inicio.html#resume" class="footer__link">Currículo</a>
+          <a href="https://github.com/guilhermewrsilva-arch"              class="footer__link" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/guilherme-weiss-a996a1350" class="footer__link" target="_blank" rel="noopener">LinkedIn</a>
+        </nav>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">&copy; 2025 Guilherme Weiss · Todos os direitos reservados.</p>
+        <p class="footer__made">Feito com atenção aos detalhes.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="jogo.js"></script>
+</body>
+</html>

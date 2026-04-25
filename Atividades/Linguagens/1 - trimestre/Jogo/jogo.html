@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Jogo Literário Wordwall — revisão das escolas literárias brasileiras do Quinhentismo ao Simbolismo. Guilherme Weiss." />
+  <meta name="theme-color" content="#05050a" />
+  <meta property="og:title" content="Jogo Literário Wordwall · Guilherme Weiss" />
+  <meta property="og:description" content="Gamificação das escolas literárias brasileiras: do Quinhentismo ao Simbolismo em um jogo digital interativo." />
+  <title>Jogo Literário Wordwall · Guilherme Weiss</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="jogo.css" />
+
+  <style>
+    /* ── LIVRO ANIMADO NO HERO ─────────────────────────────── */
+    .book-wrap {
+      position: absolute;
+      right: clamp(2rem, 8vw, 10rem);
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.16;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) { .book-wrap { display: none; } }
+    .book-svg { width: clamp(180px, 22vw, 300px); }
+
+    /* Página do livro vira suavemente */
+    .book-page {
+      transform-origin: 112px 150px;
+      animation: page-turn 6s ease-in-out infinite alternate;
+    }
+    @keyframes page-turn {
+      0%   { transform: rotateY(0deg);   opacity: 1; }
+      40%  { transform: rotateY(-30deg); opacity: 0.7; }
+      100% { transform: rotateY(-55deg); opacity: 0.4; }
+    }
+
+    /* Partículas tipo letras flutuantes */
+    .letter-particle {
+      position: absolute;
+      font-family: var(--font-display);
+      font-size: var(--fs, 14px);
+      font-weight: 700;
+      color: rgba(139,92,246, var(--op, .35));
+      left: var(--x, 50%); top: var(--y, 50%);
+      animation: letter-float var(--d, 5s) ease-in-out infinite alternate;
+      pointer-events: none;
+      user-select: none;
+    }
+    @keyframes letter-float {
+      from { transform: translateY(0) rotate(var(--r, -5deg)); opacity: var(--op, .35); }
+      to   { transform: translateY(-18px) rotate(var(--r2, 5deg)); opacity: calc(var(--op, .35) * 1.8); }
+    }
+
+    /* ── CHIPS ─────────────────────────────────────────────── */
+    .chip {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .3rem .75rem; border-radius: 99px;
+      font-size: .72rem; font-weight: 600; border: 1.5px solid;
+    }
+    .chip--green  { background: rgba(74,222,128,.08);  border-color: rgba(74,222,128,.35);  color: #4ade80; }
+    .chip--teal   { background: rgba(34,211,238,.08);  border-color: rgba(34,211,238,.35);  color: #22d3ee; }
+    .chip--amber  { background: rgba(251,191,36,.08);  border-color: rgba(251,191,36,.35);  color: #fbbf24; }
+    .chip--purple { background: rgba(139,92,246,.08);  border-color: rgba(139,92,246,.35);  color: #a78bfa; }
+
+    /* ── LINHA DO TEMPO LITERÁRIA ──────────────────────────── */
+    .act-timeline {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding-left: 2rem;
+    }
+    .act-timeline::before {
+      content: '';
+      position: absolute;
+      left: .55rem;
+      top: .5rem;
+      bottom: .5rem;
+      width: 1.5px;
+      background: linear-gradient(
+        to bottom,
+        rgba(139,92,246,.6),
+        rgba(34,211,238,.4),
+        rgba(74,222,128,.3),
+        rgba(251,191,36,.2)
+      );
+      border-radius: 99px;
+    }
+
+    .act-timeline-item {
+      position: relative;
+      padding: .75rem 0 .75rem .75rem;
+      cursor: default;
+    }
+    .act-timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.45rem;
+      top: 1.05rem;
+      width: .55rem; height: .55rem;
+      border-radius: 50%;
+      background: var(--dot-color, #a78bfa);
+      border: 1.5px solid rgba(255,255,255,.15);
+      box-shadow: 0 0 8px var(--dot-color, #a78bfa);
+    }
+
+    .act-timeline-item__period {
+      font-size: .65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--dot-color, #a78bfa);
+      margin-bottom: .15rem;
+    }
+    .act-timeline-item__name {
+      font-size: .88rem; font-weight: 700; color: var(--text-1);
+      margin-bottom: .15rem;
+    }
+    .act-timeline-item__authors {
+      font-size: .75rem; color: var(--text-3);
+      font-style: italic;
+    }
+
+    /* ── ETAPAS DO PROJETO ─────────────────────────────────── */
+    .act-steps { display: flex; flex-direction: column; gap: .9rem; }
+    .act-step {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr;
+      gap: .85rem; align-items: start;
+    }
+    .act-step__icon {
+      width: 2.5rem; height: 2.5rem; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: .75rem; font-weight: 800;
+      font-family: var(--font-display);
+    }
+    .act-step__icon--purple { background: rgba(139,92,246,.12); color: #a78bfa; border: 1px solid rgba(139,92,246,.2); }
+    .act-step__icon--teal   { background: rgba(34,211,238,.10); color: #22d3ee; border: 1px solid rgba(34,211,238,.2); }
+    .act-step__icon--amber  { background: rgba(251,191,36,.10); color: #fbbf24; border: 1px solid rgba(251,191,36,.2); }
+    .act-step__icon--green  { background: rgba(74,222,128,.10); color: #4ade80; border: 1px solid rgba(74,222,128,.2); }
+
+    .act-step__label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); margin-bottom: .15rem; }
+    .act-step__title { font-size: .88rem; font-weight: 700; color: var(--text-1); margin-bottom: .2rem; }
+    .act-step__desc  { font-size: .78rem; color: var(--text-2); line-height: 1.55; }
+
+    /* ── CARD WORDWALL LINK ─────────────────────────────────── */
+    .act-wordwall-cta {
+      display: flex; align-items: center; gap: 1rem;
+      background: rgba(139,92,246,.06);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      text-decoration: none;
+      transition: background var(--t-base), border-color var(--t-base), transform var(--t-base);
+    }
+    .act-wordwall-cta:hover {
+      background: rgba(139,92,246,.12);
+      border-color: rgba(139,92,246,.4);
+      transform: translateX(4px);
+    }
+    .act-wordwall-cta__icon {
+      width: 2.5rem; height: 2.5rem; border-radius: 10px;
+      background: rgba(139,92,246,.15);
+      display: flex; align-items: center; justify-content: center;
+      color: #a78bfa; flex-shrink: 0;
+    }
+    .act-wordwall-cta__label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); }
+    .act-wordwall-cta__name  { font-size: .9rem; font-weight: 700; color: var(--text-1); }
+    .act-wordwall-cta__arrow { margin-left: auto; color: var(--accent); flex-shrink: 0; }
+    .act-wordwall-cta--disabled { opacity: .5; cursor: default; pointer-events: none; }
+
+    /* ── FERRAMENTAS UTILIZADAS ────────────────────────────── */
+    .act-tools { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .75rem; }
+    .act-tool {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .4rem .85rem;
+      border-radius: 8px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      font-size: .78rem; font-weight: 600; color: var(--text-2);
+      transition: border-color var(--t-base), background var(--t-base);
+    }
+    .act-tool:hover { border-color: rgba(139,92,246,.35); background: rgba(139,92,246,.06); }
+    .act-tool__dot {
+      width: .45rem; height: .45rem; border-radius: 50%;
+    }
+    .act-tool__dot--purple { background: #a78bfa; }
+    .act-tool__dot--teal   { background: #22d3ee; }
+    .act-tool__dot--amber  { background: #fbbf24; }
+
+    /* overline auxiliar */
+    .act-card__overline2 {
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: .5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__ring"></div>
+    <div class="cursor__dot"></div>
+  </div>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- ══ NAVBAR ══ -->
+  <header class="navbar" id="navbar" role="banner">
+    <nav class="navbar__inner container" aria-label="Navegação da atividade">
+      <a href="../../../../index.html#languages-heading" class="act-back" aria-label="Voltar ao portfólio">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Voltar ao portfólio
+      </a>
+      <a href="../index.html" class="navbar__logo" aria-label="Guilherme Weiss — início">
+        <span class="navbar__logo-mark" aria-hidden="true">GW</span>
+        <span class="navbar__logo-text">Guilherme Weiss</span>
+      </a>
+      <div class="act-breadcrumb" aria-label="Local atual">
+        <span class="act-breadcrumb__sep" aria-hidden="true">/</span>
+        <span class="act-breadcrumb__label">Português · Literatura</span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ══ HERO ══ -->
+    <section class="act-hero" id="top" aria-labelledby="act-title">
+      <div class="act-hero__bg-grid"   aria-hidden="true"></div>
+      <div class="act-hero__bg-aurora" aria-hidden="true"></div>
+
+      <!-- Partículas tipo letras/movimentos literários -->
+      <div class="act-hero__bg-charge" aria-hidden="true">
+        <div class="letter-particle" style="--x:7%;  --y:22%; --d:4.2s; --r:-8deg; --r2:4deg; --fs:16px; --op:.25;">B</div>
+        <div class="letter-particle" style="--x:88%; --y:15%; --d:5.0s; --r:6deg;  --r2:-3deg;--fs:13px; --op:.2;">R</div>
+        <div class="letter-particle" style="--x:72%; --y:70%; --d:3.8s; --r:-4deg; --r2:8deg; --fs:18px; --op:.18;">S</div>
+        <div class="letter-particle" style="--x:20%; --y:65%; --d:6.1s; --r:10deg; --r2:-6deg;--fs:12px; --op:.22;">A</div>
+        <div class="letter-particle" style="--x:50%; --y:10%; --d:4.7s; --r:-6deg; --r2:5deg; --fs:15px; --op:.2;">L</div>
+        <div class="letter-particle" style="--x:38%; --y:80%; --d:5.3s; --r:3deg;  --r2:-9deg;--fs:14px; --op:.23;">M</div>
+        <div class="charge-particle"  style="--d:1.6s; --x:92%; --y:55%"></div>
+        <div class="charge-particle"  style="--d:2.3s; --x:12%; --y:85%"></div>
+      </div>
+
+      <!-- Livro decorativo -->
+      <div class="book-wrap" aria-hidden="true">
+        <svg class="book-svg" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Capa traseira do livro -->
+          <rect x="55" y="40" width="160" height="220" rx="6"
+                fill="rgba(139,92,246,.06)" stroke="rgba(139,92,246,.2)" stroke-width="1.5"/>
+          <!-- Lombada -->
+          <rect x="40" y="40" width="20" height="220" rx="4"
+                fill="rgba(139,92,246,.10)" stroke="rgba(139,92,246,.35)" stroke-width="1.5"/>
+          <!-- Capa dianteira -->
+          <rect x="58" y="43" width="154" height="214" rx="4"
+                fill="rgba(139,92,246,.04)" stroke="rgba(139,92,246,.3)" stroke-width="1.2"/>
+          <!-- Linha horizontal decorativa (topo) -->
+          <line x1="75" y1="70" x2="195" y2="70" stroke="rgba(139,92,246,.35)" stroke-width="1" stroke-dasharray="4 3"/>
+          <!-- Texto fictício (linhas) -->
+          <line x1="75" y1="90"  x2="195" y2="90"  stroke="rgba(139,92,246,.2)" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="75" y1="105" x2="175" y2="105" stroke="rgba(139,92,246,.15)" stroke-width="1" stroke-linecap="round"/>
+          <line x1="75" y1="120" x2="185" y2="120" stroke="rgba(139,92,246,.18)" stroke-width="1" stroke-linecap="round"/>
+          <line x1="75" y1="135" x2="160" y2="135" stroke="rgba(139,92,246,.13)" stroke-width="1" stroke-linecap="round"/>
+          <!-- Separador central -->
+          <line x1="75" y1="155" x2="195" y2="155" stroke="rgba(34,211,238,.2)" stroke-width="1" stroke-dasharray="6 4"/>
+          <!-- Mais linhas -->
+          <line x1="75" y1="172" x2="190" y2="172" stroke="rgba(34,211,238,.15)" stroke-width="1" stroke-linecap="round"/>
+          <line x1="75" y1="187" x2="170" y2="187" stroke="rgba(34,211,238,.12)" stroke-width="1" stroke-linecap="round"/>
+          <line x1="75" y1="202" x2="180" y2="202" stroke="rgba(34,211,238,.12)" stroke-width="1" stroke-linecap="round"/>
+          <!-- Marcador (fita) -->
+          <line x1="155" y1="43" x2="155" y2="272" stroke="rgba(251,191,36,.5)" stroke-width="2.5" stroke-linecap="round"/>
+          <polygon points="150,270 155,280 160,270" fill="rgba(251,191,36,.5)"/>
+          <!-- Título fictício -->
+          <text x="125" y="58" font-family="Sora,sans-serif" font-size="8" font-weight="700"
+                fill="rgba(139,92,246,.5)" text-anchor="middle" letter-spacing="1">LITERATURA</text>
+          <!-- Página virando -->
+          <g class="book-page">
+            <path d="M215 43 Q240 150 215 257" stroke="rgba(139,92,246,.25)" stroke-width="1" fill="rgba(139,92,246,.03)"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="container">
+        <div class="act-hero__inner">
+
+          <div class="act-hero__badge reveal">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            Português · Literatura Brasileira
+          </div>
+
+          <h1 class="act-hero__title reveal reveal--delay-1" id="act-title">
+            Jogo Literário
+            <span class="act-hero__title-accent">Wordwall</span>
+          </h1>
+
+          <p class="act-hero__sub reveal reveal--delay-2">
+            Do Quinhentismo ao Simbolismo: revisão das escolas literárias brasileiras
+            transformada em jogo digital interativo com feedback automático e elementos visuais.
+          </p>
+
+          <div class="act-hero__meta reveal reveal--delay-3" role="list">
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Disciplina</span>
+              <span class="act-hero__meta-val">Língua Portuguesa · Literatura</span>
+            </div>
+            <div class="act-hero__meta-divider" aria-hidden="true"></div>
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Formato</span>
+              <span class="act-hero__meta-val">Jogo Digital Interativo</span>
+            </div>
+            <div class="act-hero__meta-divider" aria-hidden="true"></div>
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Ferramentas</span>
+              <span class="act-hero__meta-val">Wordwall · Canva · 2025</span>
+            </div>
+          </div>
+
+          <div class="act-hero__actions reveal reveal--delay-3">
+            <a href="https://wordwall.net/pt/resource/108129211/parnasianismo" class="btn btn--primary js-magnetic">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Ver a atividade
+            </a>
+            <a href="#competencias" class="btn btn--ghost">
+              Competências
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="hero__scroll-cue" aria-hidden="true">
+        <div class="hero__scroll-track"><div class="hero__scroll-thumb"></div></div>
+      </div>
+    </section>
+
+    <!-- ══ BENTO PRINCIPAL ══ -->
+    <section class="act-section" id="descricao" aria-labelledby="descricao-heading">
+      <div class="container">
+
+        <div class="act-section__header reveal">
+          <div class="section-label">Sobre a atividade</div>
+          <h2 class="section-heading" id="descricao-heading">A proposta</h2>
+          <p class="section-subheading">
+            Literatura gamificada: pesquisa, síntese, criação e socialização de conhecimento
+            sobre os movimentos literários brasileiros.
+          </p>
+        </div>
+
+        <div class="act-bento" role="region" aria-label="Conteúdo principal da atividade">
+
+          <!-- ① Descrição + ferramentas -->
+          <article class="act-card act-card--desc reveal" aria-labelledby="card-desc-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Proposta</div>
+            <h3 class="act-card__title" id="card-desc-title">Literatura vira jogo</h3>
+            <div class="act-card__body">
+              <p>
+                A atividade teve como objetivo revisar as escolas literárias brasileiras,
+                do <em>Quinhentismo</em> ao <em>Simbolismo</em>, por meio da criação de um
+                jogo digital interativo no Wordwall. A proposta integrou conhecimentos de
+                literatura com letramento digital, estimulando a aprendizagem ativa por
+                meio da gamificação.
+              </p>
+              <p>
+                Cada grupo pesquisou uma escola literária específica em profundidade —
+                contexto histórico, características, linguagem, autores e obras —
+                organizou tudo em uma apresentação no Canva e depois construiu um jogo
+                autoral com perguntas, feedback automático e estética alinhada ao período estudado.
+              </p>
+            </div>
+
+            <p class="act-card__overline2" style="margin-top:1rem;">Ferramentas utilizadas</p>
+            <div class="act-tools">
+              <div class="act-tool">
+                <span class="act-tool__dot act-tool__dot--purple"></span>
+                Wordwall
+              </div>
+              <div class="act-tool">
+                <span class="act-tool__dot act-tool__dot--teal"></span>
+                Canva
+              </div>
+              <div class="act-tool">
+                <span class="act-tool__dot act-tool__dot--amber"></span>
+                Pesquisa bibliográfica
+              </div>
+            </div>
+
+            <div class="act-card__concepts" style="margin-top:1rem;" aria-label="Conceitos do jogo">
+              <span class="act-concept-pill">
+                <span class="act-concept-pill__dot" aria-hidden="true"></span>
+                Escolas literárias
+              </span>
+              <span class="act-concept-pill">
+                <span class="act-concept-pill__dot" aria-hidden="true"></span>
+                Contexto histórico
+              </span>
+              <span class="act-concept-pill">
+                <span class="act-concept-pill__dot" aria-hidden="true"></span>
+                Letramento digital
+              </span>
+              <span class="act-concept-pill">
+                <span class="act-concept-pill__dot" aria-hidden="true"></span>
+                Gamificação
+              </span>
+            </div>
+          </article>
+
+          <!-- ② Linha do tempo literária -->
+          <article class="act-card reveal reveal--delay-1" aria-labelledby="card-timeline-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap act-card__icon-wrap--teal" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="20" x2="12" y2="10"/>
+                <line x1="18" y1="20" x2="18" y2="4"/>
+                <line x1="6"  y1="20" x2="6"  y2="16"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Conteúdo revisado</div>
+            <h3 class="act-card__title" id="card-timeline-title">Escolas literárias brasileiras</h3>
+
+            <nav class="act-timeline" style="margin-top:1rem;"
+                 aria-label="Linha do tempo dos movimentos literários">
+
+              <div class="act-timeline-item" style="--dot-color:#a78bfa;">
+                <div class="act-timeline-item__period">Séc. XVI</div>
+                <div class="act-timeline-item__name">Quinhentismo</div>
+                <div class="act-timeline-item__authors">Pero Vaz de Caminha · literatura de informação</div>
+              </div>
+
+              <div class="act-timeline-item" style="--dot-color:#818cf8;">
+                <div class="act-timeline-item__period">Séc. XVII</div>
+                <div class="act-timeline-item__name">Barroco</div>
+                <div class="act-timeline-item__authors">Padre Antônio Vieira · Gregório de Matos</div>
+              </div>
+
+              <div class="act-timeline-item" style="--dot-color:#38bdf8;">
+                <div class="act-timeline-item__period">Séc. XVIII</div>
+                <div class="act-timeline-item__name">Arcadismo (Neoclassicismo)</div>
+                <div class="act-timeline-item__authors">Cláudio Manuel da Costa · Tomás Antônio Gonzaga</div>
+              </div>
+
+              <div class="act-timeline-item" style="--dot-color:#34d399;">
+                <div class="act-timeline-item__period">Séc. XIX — 1ª metade</div>
+                <div class="act-timeline-item__name">Romantismo</div>
+                <div class="act-timeline-item__authors">José de Alencar · Gonçalves Dias · Castro Alves</div>
+              </div>
+
+              <div class="act-timeline-item" style="--dot-color:#fb923c;">
+                <div class="act-timeline-item__period">Séc. XIX — 2ª metade</div>
+                <div class="act-timeline-item__name">Realismo / Naturalismo</div>
+                <div class="act-timeline-item__authors">Machado de Assis · Eça de Queirós · Aluísio Azevedo</div>
+              </div>
+
+              <div class="act-timeline-item" style="--dot-color:#fbbf24;">
+                <div class="act-timeline-item__period">Séc. XIX — fim</div>
+                <div class="act-timeline-item__name">Parnasianismo</div>
+                <div class="act-timeline-item__authors">Olavo Bilac · Raimundo Correia · Alberto de Oliveira</div>
+              </div>
+
+              <div class="act-timeline-item" style="--dot-color:#e879f9;">
+                <div class="act-timeline-item__period">Séc. XIX — fim / Séc. XX — início</div>
+                <div class="act-timeline-item__name">Simbolismo</div>
+                <div class="act-timeline-item__authors">Cruz e Sousa · Alphonsus de Guimaraens</div>
+              </div>
+
+            </nav>
+          </article>
+
+          <!-- ③ Etapas do desenvolvimento (largura total) -->
+          <article class="act-card act-card--method reveal reveal--delay-1"
+                   style="grid-column: 1 / -1;" aria-labelledby="card-dev-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Desenvolvimento</div>
+            <h3 class="act-card__title" id="card-dev-title">Como o projeto foi construído</h3>
+
+            <div class="act-steps" style="margin-top:1rem;">
+
+              <div class="act-step">
+                <div class="act-step__icon act-step__icon--purple">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="act-step__label">Etapa 01</div>
+                  <div class="act-step__title">Pesquisa aprofundada</div>
+                  <div class="act-step__desc">
+                    Investigação do contexto histórico, características estéticas, linguagem,
+                    principais autores, obras e comparação com movimentos anteriores da escola literária designada ao grupo.
+                  </div>
+                </div>
+              </div>
+
+              <div class="act-step">
+                <div class="act-step__icon act-step__icon--teal">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <line x1="3" y1="9" x2="21" y2="9"/>
+                    <line x1="9" y1="21" x2="9" y2="9"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="act-step__label">Etapa 02</div>
+                  <div class="act-step__title">Apresentação no Canva</div>
+                  <div class="act-step__desc">
+                    Organização visual das informações pesquisadas em uma apresentação no Canva,
+                    servindo como base estruturada para a construção do jogo e para a socialização com a turma.
+                  </div>
+                </div>
+              </div>
+
+              <div class="act-step">
+                <div class="act-step__icon act-step__icon--amber">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="act-step__label">Etapa 03</div>
+                  <div class="act-step__title">Criação do jogo no Wordwall</div>
+                  <div class="act-step__desc">
+                    Desenvolvimento do jogo autoral com desafios interativos: perguntas sobre o movimento
+                    literário, feedback automático para cada resposta e elementos visuais alinhados à
+                    estética do período estudado — com foco em clareza, engajamento e reforço do conteúdo.
+                  </div>
+                </div>
+              </div>
+
+              <div class="act-step">
+                <div class="act-step__icon act-step__icon--green">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="act-step__label">Etapa 04</div>
+                  <div class="act-step__title">Socialização e análise comparativa</div>
+                  <div class="act-step__desc">
+                    Os jogos foram apresentados e testados pelos colegas durante a socialização,
+                    promovendo troca de conhecimento, análise comparativa entre diferentes escolas
+                    literárias e revisão dinâmica de todo o conteúdo.
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </article>
+
+          <!-- ④ Resultados + link Wordwall -->
+          <article class="act-card act-card--phenomena reveal reveal--delay-2" aria-labelledby="card-results-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Resultados e Aprendizados</div>
+            <h3 class="act-card__title" id="card-results-title">O que a atividade proporcionou</h3>
+
+            <ul class="act-phenomena-list" aria-label="Lista de resultados">
+              <li class="act-phenomena-item">
+                <span class="act-phenomena-item__marker" aria-hidden="true">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
+                </span>
+                Revisão dinâmica e eficiente dos movimentos literários
+              </li>
+              <li class="act-phenomena-item">
+                <span class="act-phenomena-item__marker" aria-hidden="true">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
+                </span>
+                Fixação de conteúdo por meio da aplicação prática e gamificada
+              </li>
+              <li class="act-phenomena-item">
+                <span class="act-phenomena-item__marker" aria-hidden="true">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
+                </span>
+                Síntese de informações e desenvolvimento de pensamento crítico
+              </li>
+              <li class="act-phenomena-item">
+                <span class="act-phenomena-item__marker" aria-hidden="true">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
+                </span>
+                Criatividade e trabalho colaborativo em grupo
+              </li>
+              <li class="act-phenomena-item">
+                <span class="act-phenomena-item__marker" aria-hidden="true">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
+                </span>
+                Troca de conhecimento e análise comparativa entre escolas literárias
+              </li>
+            </ul>
+
+            <div style="margin-top:1.25rem;">
+              <p class="act-card__overline2">Jogar no Wordwall</p>
+              <a href="#" class="act-wordwall-cta act-wordwall-cta--disabled"
+                 aria-label="Link do jogo ainda não disponível">
+                <div class="act-wordwall-cta__icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="1.8"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="act-wordwall-cta__label">Wordwall · Jogo interativo</div>
+                  <div class="act-wordwall-cta__name">Escolas Literárias Brasileiras</div>
+                </div>
+                <div class="act-wordwall-cta__arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </div>
+              </a>
+              <p style="font-size:.7rem;color:var(--text-3);margin-top:.5rem;text-align:center;">
+                Substitua o href="#" pelo link do seu jogo no Wordwall.
+              </p>
+            </div>
+          </article>
+
+        </div><!-- /act-bento -->
+      </div>
+    </section>
+
+    <!-- ══ HABILIDADES ══ -->
+    <section class="act-section act-section--alt" id="habilidades" aria-labelledby="hab-heading">
+      <div class="container">
+        <div class="act-section__header reveal">
+          <div class="section-label">Desenvolvimento</div>
+          <h2 class="section-heading" id="hab-heading">Habilidades desenvolvidas</h2>
+          <p class="section-subheading">
+            Competências literárias, digitais e colaborativas exercitadas ao longo do projeto.
+          </p>
+        </div>
+
+        <div class="act-tags-wrap reveal reveal--delay-1" aria-label="Habilidades em formato de tags">
+          <span class="tag">Análise literária</span>
+          <span class="tag">Contexto histórico</span>
+          <span class="tag">Síntese de informações</span>
+          <span class="tag">Pensamento crítico</span>
+          <span class="tag">Letramento digital</span>
+          <span class="tag">Design de jogos</span>
+          <span class="tag">Canva</span>
+          <span class="tag">Wordwall</span>
+          <span class="tag">Trabalho em equipe</span>
+          <span class="tag">Criatividade</span>
+          <span class="tag">Aprendizagem ativa</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ COMPETÊNCIAS BNCC ══ -->
+    <section class="act-section" id="competencias" aria-labelledby="comp-heading">
+      <div class="container">
+        <div class="act-section__header reveal">
+          <div class="section-label">BNCC / Currículo</div>
+          <h2 class="section-heading" id="comp-heading">Competências e Habilidades</h2>
+          <p class="section-subheading">
+            Referências curriculares articuladas por esta atividade interdisciplinar.
+          </p>
+        </div>
+
+        <div class="act-competencias">
+
+          <!-- Competência extra: letramento digital -->
+          <div class="act-comp-card reveal" aria-labelledby="comp-digital-title">
+            <div class="act-comp-card__header">
+              <div class="act-comp-card__badge"
+                   style="background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.3);color:#22d3ee;">
+                DC
+              </div>
+              <h3 class="act-comp-card__title" id="comp-digital-title">
+                Letramento Digital e Criação Interativa
+              </h3>
+            </div>
+            <p class="act-comp-card__desc">
+              Desenvolvimento de letramento digital por meio da criação de conteúdos interativos
+              no Wordwall e Canva — integrando tecnologia ao processo de aprendizagem literária
+              de forma autoral e colaborativa.
+            </p>
+          </div>
+
+          <div class="act-hab-grid">
+
+            <article class="act-hab-card reveal reveal--delay-1" aria-labelledby="hab-h4">
+              <div class="act-hab-card__code" aria-label="Habilidade H4">H4</div>
+              <h4 class="act-hab-card__title" id="hab-h4">Movimentos Literários em Contexto</h4>
+              <p class="act-hab-card__desc">
+                Compreensão e análise de movimentos literários em seus contextos históricos,
+                identificando características estéticas, linguagem e autores representativos de cada escola.
+              </p>
+              <ul class="act-hab-card__list" aria-label="Aspectos estudados">
+                <li>Contexto histórico de cada escola</li>
+                <li>Características estéticas e de linguagem</li>
+                <li>Autores e obras representativos</li>
+                <li>Comparação entre movimentos</li>
+              </ul>
+            </article>
+
+            <article class="act-hab-card act-hab-card--featured reveal reveal--delay-2" aria-labelledby="hab-h14">
+              <div class="act-hab-card__code act-hab-card__code--featured" aria-label="Habilidade H14">H14</div>
+              <h4 class="act-hab-card__title" id="hab-h14">Organização e Interpretação da Informação</h4>
+              <p class="act-hab-card__desc">
+                Organização e interpretação de informações em diferentes linguagens — da pesquisa
+                bibliográfica à apresentação visual no Canva e à transposição gamificada no Wordwall,
+                exercitando a síntese e a comunicação em múltiplos formatos.
+              </p>
+              <div class="act-hab-card__highlight" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+                Habilidade-síntese da atividade
+              </div>
+            </article>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CTA FINAL ══ -->
+    <section class="act-cta-section" id="jogar" aria-labelledby="cta-heading">
+      <div class="act-cta-section__glow" aria-hidden="true"></div>
+      <div class="container">
+        <div class="act-cta reveal">
+          <div class="act-cta__icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <div class="act-cta__content">
+            <h2 class="act-cta__title" id="cta-heading">Acesse o jogo completo</h2>
+            <p class="act-cta__desc">
+              Teste seus conhecimentos sobre as escolas literárias brasileiras — do Quinhentismo
+              ao Simbolismo — com perguntas interativas e feedback automático no Wordwall.
+            </p>
+          </div>
+          <a href="https://wordwall.net/pt/resource/108129211/parnasianismo"
+             class="btn btn--primary btn--lg js-magnetic"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="Abrir o jogo no Wordwall (nova aba)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Jogar agora
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navegação -->
+    <section class="act-nav-between" aria-label="Navegar entre atividades">
+      <div class="container">
+        <div class="act-nav-between__inner">
+          <a href="../../../../index.html#languages-heading" class="act-nav-between__home reveal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Voltar ao portfólio
+          </a>
+          <span class="act-nav-between__label reveal reveal--delay-1">Português · Literatura</span>
+          <a href="#top" class="act-nav-between__top reveal reveal--delay-2">
+            Topo da página
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__gradient" aria-hidden="true"></div>
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="navbar__logo-mark" aria-hidden="true">GW</span>
+          <p class="footer__tagline">Tecnologia com propósito.</p>
+        </div>
+        <nav class="footer__nav" aria-label="Links do rodapé">
+          <a href="../index.html#hero"   class="footer__link">Início</a>
+          <a href="../index.html#resume" class="footer__link">Currículo</a>
+          <a href="https://github.com/guilhermewrsilva-arch"              class="footer__link" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/guilherme-weiss-a996a1350" class="footer__link" target="_blank" rel="noopener">LinkedIn</a>
+        </nav>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">&copy; 2025 Guilherme Weiss · Todos os direitos reservados.</p>
+        <p class="footer__made">Feito com atenção aos detalhes.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="jogo.js"></script>
+</body>
+</html>

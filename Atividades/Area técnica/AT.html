@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Projeto Teleios — site institucional com UML Use Case e documentação técnica. Guilherme Weiss." />
+  <meta name="theme-color" content="#05050a" />
+  <title>Projeto Teleios · Guilherme Weiss</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="AT.css" />
+
+  <style>
+    /* ── USE CASE CARDS ────────────────────────────────────── */
+    .uc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: .85rem;
+      margin-top: 1rem;
+    }
+
+    .uc-card {
+      background: rgba(255,255,255,.025);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--t-base), background var(--t-base);
+    }
+    .uc-card:hover {
+      border-color: rgba(139,92,246,.35);
+      background: rgba(139,92,246,.04);
+    }
+    .uc-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--uc-color, rgba(139,92,246,.6));
+      border-radius: 2px 2px 0 0;
+    }
+
+    .uc-card__code {
+      font-size: .65rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .12em;
+      color: var(--uc-color, #a78bfa);
+      font-family: var(--font-display);
+    }
+    .uc-card__name {
+      font-size: .88rem; font-weight: 700; color: var(--text-1);
+      line-height: 1.3;
+    }
+    .uc-card__desc {
+      font-size: .75rem; color: var(--text-3); line-height: 1.5;
+    }
+    .uc-card__goal {
+      margin-top: .2rem;
+      display: inline-flex; align-items: center; gap: .3rem;
+      font-size: .72rem; font-weight: 600;
+      color: var(--uc-color, #a78bfa);
+    }
+    .uc-card__goal::before {
+      content: '→';
+      opacity: .7;
+    }
+
+    /* Relação extend / include badge */
+    .uc-rel {
+      display: inline-flex; align-items: center; gap: .3rem;
+      font-size: .65rem; font-weight: 700;
+      padding: .2rem .55rem; border-radius: 99px;
+      border: 1px solid; margin-top: .15rem;
+      width: fit-content;
+    }
+    .uc-rel--extend  { border-color: rgba(34,211,238,.3);  color: #22d3ee; background: rgba(34,211,238,.06); }
+    .uc-rel--include { border-color: rgba(74,222,128,.3);  color: #4ade80; background: rgba(74,222,128,.06); }
+
+    /* ── PREVIEW DO SITE ───────────────────────────────────── */
+    .site-preview {
+      background: #f3f4f6;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Barra de browser falsa */
+    .site-preview__bar {
+      background: #e5e7eb;
+      padding: .45rem .75rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .site-preview__dot {
+      width: .55rem; height: .55rem; border-radius: 50%;
+    }
+    .site-preview__dot:nth-child(1) { background: #f87171; }
+    .site-preview__dot:nth-child(2) { background: #fbbf24; }
+    .site-preview__dot:nth-child(3) { background: #4ade80; }
+    .site-preview__url {
+      flex: 1; background: #fff; border-radius: 4px;
+      padding: .2rem .6rem; font-size: .68rem; color: #6b7280;
+      font-family: monospace; margin-left: .25rem;
+    }
+
+    /* Conteúdo interno — replica o hero da Teleios */
+    .site-preview__body {
+      background: #f9fafb;
+      padding: 2rem 1.5rem;
+      display: flex; flex-direction: column;
+      align-items: center; text-align: center; gap: .75rem;
+    }
+    .site-preview__badge-pill {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 99px;
+      padding: .3rem .9rem;
+      font-size: .72rem; color: #374151;
+      font-family: 'Sora', sans-serif;
+    }
+    .site-preview__brand {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 2rem; font-weight: 400;
+      color: #111827; letter-spacing: -.02em;
+    }
+    .site-preview__sub {
+      font-size: .8rem; color: #6b7280;
+      font-family: 'Inter', sans-serif;
+    }
+    .site-preview__btns {
+      display: flex; gap: .6rem; margin-top: .25rem;
+    }
+    .site-preview__btn {
+      padding: .5rem 1rem; border-radius: 6px;
+      font-size: .75rem; font-weight: 600;
+      font-family: 'Inter', sans-serif; cursor: default;
+    }
+    .site-preview__btn--solid {
+      background: #111827; color: #fff;
+      border: 1.5px solid #111827;
+    }
+    .site-preview__btn--outline {
+      background: transparent; color: #111827;
+      border: 1.5px solid #111827;
+    }
+
+    /* ── LINK DOC ──────────────────────────────────────────── */
+    .act-doc-link {
+      display: flex; align-items: center; gap: 1rem;
+      background: rgba(139,92,246,.06);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: var(--radius);
+      padding: .9rem 1.1rem;
+      text-decoration: none;
+      transition: background var(--t-base), border-color var(--t-base), transform var(--t-base);
+    }
+    .act-doc-link:hover {
+      background: rgba(139,92,246,.12);
+      border-color: rgba(139,92,246,.4);
+      transform: translateX(4px);
+    }
+    .act-doc-link__icon {
+      width: 2.2rem; height: 2.2rem; border-radius: 8px;
+      background: rgba(139,92,246,.15);
+      display: flex; align-items: center; justify-content: center;
+      color: #a78bfa; flex-shrink: 0;
+    }
+    .act-doc-link__label { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); }
+    .act-doc-link__name  { font-size: .85rem; font-weight: 700; color: var(--text-1); }
+    .act-doc-link__arrow { margin-left: auto; color: var(--accent); flex-shrink: 0; }
+
+    /* overline auxiliar */
+    .act-card__overline2 {
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: .5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__ring"></div>
+    <div class="cursor__dot"></div>
+  </div>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- ══ NAVBAR ══ -->
+  <header class="navbar" id="navbar" role="banner">
+    <nav class="navbar__inner container" aria-label="Navegação da atividade">
+      <a href="../../index.html#area-tecnica-heading" class="act-back" aria-label="Voltar ao portfólio">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Voltar ao portfólio
+      </a>
+      <a href="../Inicio/inicio.html" class="navbar__logo" aria-label="Guilherme Weiss — início">
+        <span class="navbar__logo-mark" aria-hidden="true">GW</span>
+        <span class="navbar__logo-text">Guilherme Weiss</span>
+      </a>
+      <div class="act-breadcrumb" aria-label="Local atual">
+        <span class="act-breadcrumb__sep" aria-hidden="true">/</span>
+        <span class="act-breadcrumb__label">Informática · UML</span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ══ HERO ══ -->
+    <section class="act-hero" id="top" aria-labelledby="act-title">
+      <div class="act-hero__bg-grid"   aria-hidden="true"></div>
+      <div class="act-hero__bg-aurora" aria-hidden="true"></div>
+      <div class="act-hero__bg-charge" aria-hidden="true">
+        <div class="charge-particle" style="--d:0s;   --x:12%; --y:30%"></div>
+        <div class="charge-particle" style="--d:.9s;  --x:80%; --y:20%"></div>
+        <div class="charge-particle" style="--d:1.6s; --x:55%; --y:72%"></div>
+        <div class="charge-particle" style="--d:2.3s; --x:25%; --y:62%"></div>
+        <div class="charge-particle" style="--d:.4s;  --x:70%; --y:48%"></div>
+      </div>
+
+      <div class="container">
+        <div class="act-hero__inner">
+
+          <div class="act-hero__badge reveal">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            Informática · Análise de Sistemas
+          </div>
+
+          <h1 class="act-hero__title reveal reveal--delay-1" id="act-title">
+            Projeto
+            <span class="act-hero__title-accent">Teleios</span>
+          </h1>
+
+          <p class="act-hero__sub reveal reveal--delay-2">
+            Site institucional para empresa de software e automação — modelado com
+            UML Use Case Diagram e documentado com foco em arquitetura orientada ao cliente.
+          </p>
+
+          <div class="act-hero__meta reveal reveal--delay-3" role="list">
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Disciplina</span>
+              <span class="act-hero__meta-val">Informática · Análise de Sistemas</span>
+            </div>
+            <div class="act-hero__meta-divider" aria-hidden="true"></div>
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Artefato</span>
+              <span class="act-hero__meta-val">UML Use Case + Site</span>
+            </div>
+            <div class="act-hero__meta-divider" aria-hidden="true"></div>
+            <div class="act-hero__meta-item" role="listitem">
+              <span class="act-hero__meta-key">Ano</span>
+              <span class="act-hero__meta-val">SESI SENAI · 2025</span>
+            </div>
+          </div>
+
+          <div class="act-hero__actions reveal reveal--delay-3">
+            <a href="#diagrama" class="btn btn--primary js-magnetic">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Ver o projeto
+            </a>
+            <a href="https://docs.google.com/document/d/180LLFai3jvLrczwgOEKKCahT9tiQyHx1_25gMdSripo/edit"
+               class="btn btn--ghost" target="_blank" rel="noopener noreferrer">
+              Documentação
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="hero__scroll-cue" aria-hidden="true">
+        <div class="hero__scroll-track"><div class="hero__scroll-thumb"></div></div>
+      </div>
+    </section>
+
+    <!-- ══ BENTO ══ -->
+    <section class="act-section" id="diagrama" aria-labelledby="diagrama-heading">
+      <div class="container">
+
+        <div class="act-section__header reveal">
+          <div class="section-label">Sobre o projeto</div>
+          <h2 class="section-heading" id="diagrama-heading">Site + UML</h2>
+          <p class="section-subheading">
+            Modelagem de sistema real: quatro casos de uso que guiam o cliente desde
+            a descoberta até o fechamento de negócio.
+          </p>
+        </div>
+
+        <div class="act-bento" role="region" aria-label="Conteúdo do projeto Teleios">
+
+          <!-- ① Preview do site Teleios -->
+          <article class="act-card act-card--image reveal" aria-labelledby="card-site-title"
+                   style="display:flex;flex-direction:column;gap:1rem;">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap act-card__icon-wrap--teal" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Site Institucional</div>
+            <h3 class="act-card__title" id="card-site-title">Teleios — Excelência em Automação</h3>
+
+            <!-- Mock do hero da Teleios -->
+            <div class="site-preview" aria-label="Pré-visualização do site Teleios">
+              <div class="site-preview__bar">
+                <div class="site-preview__dot"></div>
+                <div class="site-preview__dot"></div>
+                <div class="site-preview__dot"></div>
+                <div class="site-preview__url">teleios.com.br</div>
+              </div>
+              <div class="site-preview__body">
+                <div class="site-preview__badge-pill">Excelência em Automação</div>
+                <div class="site-preview__brand">Teleios</div>
+                <div class="site-preview__sub">Soluções completas em software e automação</div>
+                <div class="site-preview__btns">
+                  <div class="site-preview__btn site-preview__btn--solid">Começar Projeto</div>
+                  <div class="site-preview__btn site-preview__btn--outline">Nossos Serviços</div>
+                </div>
+              </div>
+            </div>
+
+            <figcaption class="act-card__caption">
+              Hero do site institucional — design limpo com tipografia serifada e CTA direto para conversão.
+            </figcaption>
+          </article>
+
+          <!-- ② Casos de uso -->
+          <article class="act-card act-card--desc reveal reveal--delay-1" aria-labelledby="card-uc-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="12" rx="10" ry="6"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <circle cx="5" cy="8"  r="1" fill="currentColor"/>
+                <circle cx="19" cy="8" r="1" fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">UML Use Case</div>
+            <h3 class="act-card__title" id="card-uc-title">4 casos de uso — sistema site institucional</h3>
+            <p style="font-size:.78rem;color:var(--text-3);margin:.25rem 0 .75rem;">
+              Ator principal: <strong style="color:var(--text-2);">Cliente / Visitante</strong>
+            </p>
+
+            <div class="uc-grid">
+
+              <div class="uc-card" style="--uc-color:#a78bfa;">
+                <div class="uc-card__code">UC01</div>
+                <div class="uc-card__name">Visualizar Portfólio</div>
+                <div class="uc-card__desc">Cliente conhece a competência técnica da empresa.</div>
+                <div class="uc-card__goal">Gerar credibilidade</div>
+                <span class="uc-rel uc-rel--extend">«extend» UC02</span>
+              </div>
+
+              <div class="uc-card" style="--uc-color:#38bdf8;">
+                <div class="uc-card__code">UC02</div>
+                <div class="uc-card__name">Consultar Detalhes (Case)</div>
+                <div class="uc-card__desc">Entender como a empresa resolve problemas (Problema &amp; Solução).</div>
+                <div class="uc-card__goal">Aprofundar confiança</div>
+                <span class="uc-rel uc-rel--include">«include» UC04</span>
+              </div>
+
+              <div class="uc-card" style="--uc-color:#34d399;">
+                <div class="uc-card__code">UC03</div>
+                <div class="uc-card__name">Abrir Canais de Contato</div>
+                <div class="uc-card__desc">Escolher a forma de falar com a empresa (Instagram, TikTok, WhatsApp).</div>
+                <div class="uc-card__goal">Iniciar relacionamento</div>
+                <span class="uc-rel uc-rel--extend">«extend» UC04</span>
+              </div>
+
+              <div class="uc-card" style="--uc-color:#fbbf24;">
+                <div class="uc-card__code">UC04</div>
+                <div class="uc-card__name">Contato Direto (WhatsApp)</div>
+                <div class="uc-card__desc">Fechar negócio via conversa direta — reduz o caminho entre interesse e venda.</div>
+                <div class="uc-card__goal">Converter em cliente</div>
+              </div>
+
+            </div>
+
+            <div style="margin-top:1.25rem;">
+              <p class="act-card__overline2">Documentação técnica</p>
+              <a href="https://docs.google.com/document/d/180LLFai3jvLrczwgOEKKCahT9tiQyHx1_25gMdSripo/edit"
+                 class="act-doc-link" target="_blank" rel="noopener noreferrer">
+                <div class="act-doc-link__icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="1.8"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                </div>
+                <div>
+                  <div class="act-doc-link__label">Google Docs · UML + Análise</div>
+                  <div class="act-doc-link__name">Documentação do Projeto Teleios</div>
+                </div>
+                <div class="act-doc-link__arrow">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </div>
+              </a>
+            </div>
+          </article>
+
+          <!-- ③ Resultados (largura total) -->
+          <article class="act-card act-card--phenomena reveal reveal--delay-1"
+                   style="grid-column: 1 / -1;" aria-labelledby="card-results-title">
+            <div class="act-card__top-bar" aria-hidden="true"></div>
+            <div class="act-card__icon-wrap" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div class="section-label act-card__overline">Competências e Aprendizados</div>
+            <h3 class="act-card__title" id="card-results-title">O que o projeto desenvolveu</h3>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.8rem;margin-top:1rem;">
+
+              <div style="background:rgba(139,92,246,.04);border:1px solid rgba(139,92,246,.15);border-radius:var(--radius);padding:.9rem 1rem;">
+                <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;margin-bottom:.35rem;">Modelagem UML</div>
+                <p style="font-size:.78rem;color:var(--text-2);line-height:1.55;">
+                  Criação de Use Case Diagram com atores, casos de uso, relações «extend» e «include» — documentando o fluxo real de interação do cliente com o sistema.
+                </p>
+              </div>
+
+              <div style="background:rgba(34,211,238,.04);border:1px solid rgba(34,211,238,.15);border-radius:var(--radius);padding:.9rem 1rem;">
+                <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#22d3ee;margin-bottom:.35rem;">Arquitetura orientada ao usuário</div>
+                <p style="font-size:.78rem;color:var(--text-2);line-height:1.55;">
+                  Projeto estruturado com foco na jornada do cliente: desde visualizar o portfólio até fechar negócio pelo WhatsApp — reduzindo fricção entre interesse e conversão.
+                </p>
+              </div>
+
+              <div style="background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.15);border-radius:var(--radius);padding:.9rem 1rem;">
+                <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#fbbf24;margin-bottom:.35rem;">Documentação técnica</div>
+                <p style="font-size:.78rem;color:var(--text-2);line-height:1.55;">
+                  Elaboração de documentação completa do sistema, integrando análise de requisitos, diagrama UML e especificação do site institucional da empresa Teleios.
+                </p>
+              </div>
+
+            </div>
+
+            <div class="act-card__concepts" style="margin-top:1rem;" aria-label="Tags do projeto">
+              <span class="act-concept-pill"><span class="act-concept-pill__dot" aria-hidden="true"></span>UML Use Case</span>
+              <span class="act-concept-pill"><span class="act-concept-pill__dot" aria-hidden="true"></span>Análise de requisitos</span>
+              <span class="act-concept-pill"><span class="act-concept-pill__dot" aria-hidden="true"></span>Site institucional</span>
+              <span class="act-concept-pill"><span class="act-concept-pill__dot" aria-hidden="true"></span>Jornada do usuário</span>
+              <span class="act-concept-pill"><span class="act-concept-pill__dot" aria-hidden="true"></span>Automação</span>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Navegação -->
+    <section class="act-nav-between" aria-label="Navegar entre atividades">
+      <div class="container">
+        <div class="act-nav-between__inner">
+          <a href="../../index.html#area-tecnica-heading" class="act-nav-between__home reveal">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Voltar ao portfólio
+          </a>
+          <span class="act-nav-between__label reveal reveal--delay-1">Informática · Análise de Sistemas</span>
+          <a href="#top" class="act-nav-between__top reveal reveal--delay-2">
+            Topo da página
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer__gradient" aria-hidden="true"></div>
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <span class="navbar__logo-mark" aria-hidden="true">GW</span>
+          <p class="footer__tagline">Tecnologia com propósito.</p>
+        </div>
+        <nav class="footer__nav" aria-label="Links do rodapé">
+          <a href="../index.html#hero"   class="footer__link">Início</a>
+          <a href="../index.html#resume" class="footer__link">Currículo</a>
+          <a href="https://github.com/guilhermewrsilva-arch"              class="footer__link" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/guilherme-weiss-a996a1350" class="footer__link" target="_blank" rel="noopener">LinkedIn</a>
+        </nav>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">&copy; 2025 Guilherme Weiss · Todos os direitos reservados.</p>
+        <p class="footer__made">Feito com atenção aos detalhes.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="AT.js"></script>
+</body>
+</html>

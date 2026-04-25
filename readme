@@ -1,0 +1,182 @@
+# Guilherme Weiss · Portfólio Acadêmico & Profissional
+
+<div align="center">
+
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow?style=flat-square)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![Licença](https://img.shields.io/badge/licença-MIT-blue?style=flat-square)
+
+</div>
+
+---
+
+## 📌 Descrição
+
+Este projeto é um portfólio acadêmico e profissional desenvolvido integralmente com tecnologias nativas da web — HTML5, CSS3 e JavaScript puro — sem dependência de frameworks ou bibliotecas externas. O objetivo central é centralizar, organizar e apresentar as produções acadêmicas e técnicas do autor de forma visualmente refinada e navegável.
+
+O portfólio está estruturado em seções temáticas que cobrem desde a **Área Técnica em T.I.** (com foco em Database, IoT e Modelagem de Sistemas) até disciplinas acadêmicas como Matemática, Linguagens, Ciências Naturais e Ciências Humanas. Cada atividade é apresentada como um card interativo que direciona o usuário para a respectiva página interna.
+
+Mais do que um repositório de trabalhos escolares, este projeto serve como **demonstração prática de habilidades em desenvolvimento front-end**, com atenção a acessibilidade, performance, experiência do usuário e código bem organizado.
+
+---
+
+## 🚀 Demonstração
+
+> Acesse o projeto publicado no link abaixo:
+
+**[🔗 Portfólio Acadêmico](https://gweissrs.github.io/Portf-lio_Academy_v2)**
+
+*(Deploy recomendado via GitHub Pages, Vercel ou Netlify)*
+
+---
+
+## 🛠 Tecnologias
+
+| Tecnologia | Uso no projeto |
+|---|---|
+| **HTML5** | Estrutura semântica de todas as páginas, uso de `<section>`, `<nav>`, `<main>`, `<footer>`, `role` e atributos ARIA |
+| **CSS3** | Estilização completa com variáveis CSS, animações, layout com Flexbox e Grid, responsividade mobile-first |
+| **JavaScript (ES6+)** | Interatividade, animações via Canvas, scroll progress, cursor personalizado, acordeão, modal e efeitos magnéticos |
+| **Google Fonts** | Tipografias `Sora` e `Inter` para identidade visual consistente |
+| **Canvas API** | Sistema de partículas animadas no hero da página |
+
+> Nenhuma biblioteca ou framework foi utilizado — todo o código é vanilla.
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+portfolio/
+├── index.html                  # Página principal (home) — ponto de entrada do portfólio
+├── inicio.css                  # Folha de estilos principal (design system, componentes, responsividade)
+├── inicio.js                   # Script principal (todos os módulos de interatividade)
+├── favicon.ico / favicon.svg   # Ícone do site
+│
+└── Atividades/
+    ├── Area Tecnica/           # Projetos técnicos em T.I., Database, IoT e Modelagem
+    ├── Matematica/             # Atividades e projetos de Matemática por trimestre
+    ├── Linguagens/             # Produções de Língua Portuguesa, Literatura e Inglês
+    ├── Natureza/               # Física, Química e Biologia
+    └── Humanas/                # História, Filosofia, Sociologia e Tecnologia & Sociedade
+        ├── 1 - trimestre/
+        │   ├── Analise revul/revol.html
+        │   ├── Difusão tech/DT.html
+        │   └── Grande guerra/GG.html
+        └── ...
+```
+
+Cada subpasta dentro de `Atividades/` segue a convenção `Disciplina / Trimestre / Nome da atividade`, garantindo rastreabilidade e escalabilidade conforme novos conteúdos são adicionados ao longo do ano letivo.
+
+---
+
+## ✨ Funcionalidades
+
+- **Navegação por âncoras** com scroll suave entre as seções da página principal
+- **Navbar responsiva** com menu hambúrguer funcional para dispositivos móveis
+- **Cursor personalizado** com animação interpolada (lerp) e estados de hover/clique — desativado automaticamente em telas touch
+- **Barra de progresso de scroll** exibida no topo da página em tempo real
+- **Sistema de partículas animadas** renderizado via Canvas API no hero
+- **Efeito aurora e grid decorativo** no fundo do hero, com camadas visuais em CSS
+- **Cards interativos** com efeito de glow e navegação direta para as atividades internas
+- **Acordeão acessível** para organização das atividades por trimestre (com atributos ARIA corretos)
+- **Modal de aviso** informando que o portfólio profissional está em desenvolvimento ativo
+- **Efeito magnético** nos botões de CTA, com resposta ao movimento do mouse
+- **Reveal animado** em elementos ao entrarem no viewport (IntersectionObserver)
+- **Open Graph** configurado para pré-visualização ao compartilhar o link em redes sociais
+- **Suporte a tema de cor nativa** (`theme-color`) para integração com navegadores mobile
+
+---
+
+## 📚 Aprendizados
+
+Este projeto consolidou e expandiu competências em múltiplas frentes do desenvolvimento front-end:
+
+**Arquitetura e organização de código**
+- Modularização de JavaScript com IIFEs e padrão de módulo revelador
+- Separação clara de responsabilidades entre HTML (estrutura), CSS (apresentação) e JS (comportamento)
+- Uso de variáveis CSS (custom properties) como base de um design system próprio
+
+**Experiência do usuário e acessibilidade**
+- Implementação de atributos ARIA (`aria-label`, `aria-expanded`, `aria-controls`, `role`) para acessibilidade de leitores de tela
+- Design responsivo com abordagem mobile-first
+- Animações performáticas usando `requestAnimationFrame` em vez de `setInterval`
+
+**Técnicas avançadas de front-end**
+- Renderização de partículas com Canvas API
+- Interpolação linear (lerp) para movimentos suaves do cursor
+- IntersectionObserver para animações de entrada no viewport
+- Debounce em eventos de scroll e resize para otimização de performance
+
+**Organização e semântica**
+- Estrutura de pastas escalável para múltiplas disciplinas e períodos letivos
+- HTML semântico com uso correto de landmarks e hierarquia de headings
+
+---
+
+## 🔧 Melhorias Futuras
+
+- [ ] Adicionar modo escuro/claro com toggle e persistência via `localStorage`
+- [ ] Implementar filtro dinâmico de atividades por disciplina ou trimestre
+- [ ] Criar página de currículo em formato imprimível (print stylesheet)
+- [ ] Adicionar transições de página entre `index.html` e as páginas internas
+- [ ] Implementar sistema de busca nas atividades do portfólio
+- [ ] Melhorar os metadados Open Graph com imagens personalizadas por seção
+- [ ] Adicionar suporte a i18n (internacionalização) para versão em inglês
+- [ ] Automatizar o deploy com GitHub Actions
+
+---
+
+## ▶️ Como Executar
+
+O projeto não depende de nenhuma ferramenta de build, bundler ou servidor especial. Para rodar localmente:
+
+**Opção 1 — Abrir diretamente no navegador**
+
+```bash
+# Clone o repositório
+git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
+
+# Acesse a pasta
+cd SEU_REPOSITORIO
+
+# Abra o arquivo principal no navegador
+# No macOS:
+open index.html
+
+# No Linux:
+xdg-open index.html
+
+# No Windows:
+start index.html
+```
+
+**Opção 2 — Usando Live Server (recomendado para desenvolvimento)**
+
+1. Instale a extensão [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) no VS Code
+2. Clique com o botão direito em `index.html`
+3. Selecione **"Open with Live Server"**
+
+> ⚠️ Recomenda-se usar Live Server para evitar problemas de CORS ao carregar arquivos locais via `fetch` ou módulos ES6.
+
+---
+
+## 👨‍💻 Autor
+
+Desenvolvido por **Guilherme Weiss**
+
+Técnico em T.I. em formação | Dev Front-end | Estudante de Database, IoT e Modelagem de Sistemas.
+
+<br>
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-SEU_PERFIL-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://linkedin.com/in/SEU_PERFIL_AQUI)
+[![GitHub](https://img.shields.io/badge/GitHub-SEU_USUARIO-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/SEU_USUARIO_AQUI)
+[![E-mail](https://img.shields.io/badge/Email-SEU_EMAIL_AQUI-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:SEU_EMAIL_AQUI)
+
+---
+
+<div align="center">
+  <sub>© 2026 Guilherme Weiss · Feito com atenção aos detalhes.</sub>
+</div>
